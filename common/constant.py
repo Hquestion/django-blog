@@ -1,0 +1,4 @@
+CODE_SUCCESS = '0000'
+
+MSG_SUCCESS = '操作成功'
+

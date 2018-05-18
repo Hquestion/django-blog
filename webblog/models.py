@@ -25,8 +25,8 @@ class Article(models.Model):
     YES = 'YES'
     NO = 'NO'
     IS_TOP_CHOICES = (
-        (1, 'YES'),
-        (0, 'NO')
+        ('1', 'YES'),
+        ('0', 'NO')
     )
     title=models.CharField("标题", max_length=30)
     poster=models.ImageField("海报图", blank=True, upload_to='uploads/%Y/%m')
@@ -35,13 +35,19 @@ class Article(models.Model):
     tag=models.ManyToManyField('Tag', verbose_name="标签")
     create_time=models.DateTimeField('发布日期', auto_now=True)
     update_time=models.DateTimeField('修改日期', auto_now=True)
-    is_top=models.IntegerField("是否置顶",default=NO, choices=IS_TOP_CHOICES)
-    is_publish=models.IntegerField("是否发布", default=YES, choices=IS_TOP_CHOICES)
-    is_reprint=models.IntegerField("是否转载", default=NO, choices=IS_TOP_CHOICES)
+    is_top=models.CharField("是否置顶",default=NO, choices=IS_TOP_CHOICES, max_length=1)
+    is_publish=models.CharField("是否发布", default=YES, choices=IS_TOP_CHOICES, max_length=1)
+    is_reprint=models.CharField("是否转载", default=NO, choices=IS_TOP_CHOICES, max_length=1)
     comment_counts=models.IntegerField("评论数量",default=0)
+    read_counts=models.IntegerField("阅读数量", default=0)
+    fav_counts=models.IntegerField("喜欢数量", default=0)
 
     def __str__(self):
         return self.title
+
+    @property
+    def category_info(self):
+        return self.category.objects
 
     class Meta:
         verbose_name="文章"
