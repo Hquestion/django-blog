@@ -45,10 +45,6 @@ class Article(models.Model):
     def __str__(self):
         return self.title
 
-    @property
-    def category_info(self):
-        return self.category.objects
-
     class Meta:
         verbose_name="文章"
 
