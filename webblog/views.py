@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from django.forms.models import model_to_dict
+from django.views.decorators.csrf import csrf_exempt
 from django.db.models import F
 from django.core import serializers
 import json
@@ -46,10 +47,45 @@ def getTagsByArticle(request):
     return JsonResponse(CommonResponse(tagList).toDict())
 
 
+def get_article_detail(request):
+    article = model_to_dict(Article.objects.get(pk=request.GET["id"]))
+    article["poster"] = str(article["poster"])
+    print(article)
+    categoryInfo = model_to_dict(Category.objects.get(pk=article["category"]))
+    article["categoryInfo"] = {
+        "id": categoryInfo['id'],
+        "name": categoryInfo['name']
+    }
+    del (article["category"])
+    # 获取标签信息
+    tagList = []
+    for i, tagItem in enumerate(list(article["tag"])):
+        tag = model_to_dict(tagItem)
+        tagList.append(tag)
+        article["tag"] = tagList
+    # 转化markdown
+    if 'content' in article:
+        article["content"] = markdown(article["content"])
+    return JsonResponse(CommonResponse(article).toDict())
+
+
+@csrf_exempt
 def userRead(request):
-    article = Article.objects.get(pk=request.POST["article_id"])
+    data = json.loads(request.body.decode())
+    article = Article.objects.get(pk=data["id"])
     article.read_counts = F('read_counts') + 1
     article.save()
-    count = article.read_counts
+    count = Article.objects.get(pk=data["id"]).read_counts
+    return JsonResponse(CommonResponse(count).toDict())
+
+
+@csrf_exempt
+def userLike(request):
+    data = json.loads(request.body.decode())
+    article = Article.objects.get(pk=data["id"])
+    count = F('fav_counts') + 1
+    article.fav_counts = count
+    article.save()
+    count = Article.objects.get(pk=data["id"]).fav_counts
     return JsonResponse(CommonResponse(count).toDict())
 
