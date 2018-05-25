@@ -14,7 +14,7 @@ from common.model.models import CommonResponse
 
 
 def article_list(request):
-    articles = list(Article.objects.values())[:]
+    articles = list(Article.objects.values().filter(is_publish="1"))[:]
 
     for index, item in enumerate(articles):
         # 获取类别信息
