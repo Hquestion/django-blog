@@ -11,6 +11,9 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name="类别"
+
 
 class Tag(models.Model):
     name=models.CharField(max_length=15)
@@ -19,6 +22,9 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name="标签"
 
 
 class Article(models.Model):
@@ -62,5 +68,9 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.content
+
+    class Meta:
+        verbose_name="评论"
+        ordering=("-create_time",)
 
 
