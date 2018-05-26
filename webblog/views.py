@@ -14,7 +14,15 @@ from common.model.models import CommonResponse
 
 
 def article_list(request):
-    articles = list(Article.objects.values().filter(is_publish="1"))[:]
+    page_index = 1
+    page_size = 10
+    if("page_index" in request.GET):
+        page_index = int(request.GET["page_index"])
+    if("page_size" in request.GET):
+        page_size = int(request.GET["page_size"])
+
+    articles = list(Article.objects.values().filter(is_publish="1"))[(page_index -1) * page_size:page_index*page_size]
+    artiles_total = Article.objects.count();
 
     for index, item in enumerate(articles):
         # 获取类别信息
@@ -35,7 +43,10 @@ def article_list(request):
         if 'content' in item:
             item["content"] = markdown(item["content"])
 
-    return JsonResponse(CommonResponse(articles).toDict())
+    return JsonResponse(CommonResponse({
+        "list": articles,
+        "total": artiles_total
+    }).toDict())
 
 
 def getTagsByArticle(request):
