@@ -59,12 +59,12 @@ class Article(models.Model):
 
 
 class Comment(models.Model):
-    user_name=models.CharField(max_length=15, blank=True)
+    user_name=models.CharField(max_length=15, blank=True, default="匿名用户")
     user_email=models.EmailField(blank=True)
     content=models.CharField(max_length=200)
     article=models.ForeignKey('Article', on_delete=models.CASCADE)
     create_time=models.DateTimeField('发表日期', auto_now=True)
-    p_comment=models.ForeignKey('Comment', on_delete=models.CASCADE)
+    p_comment=models.CharField(max_length=5, blank=True)
 
     def __str__(self):
         return self.content

@@ -7,8 +7,9 @@ from django.core import serializers
 import json
 from markdown import markdown
 
-from .models import Article, Category, Tag
+from .models import Article, Category, Tag, Comment
 from common.model.models import CommonResponse
+from common import constant
 
 # Create your views here.
 
@@ -22,7 +23,7 @@ def article_list(request):
         page_size = int(request.GET["page_size"])
 
     articles = list(Article.objects.values().filter(is_publish="1"))[(page_index -1) * page_size:page_index*page_size]
-    artiles_total = Article.objects.count();
+    artiles_total = Article.objects.count()
 
     for index, item in enumerate(articles):
         # 获取类别信息
@@ -61,7 +62,6 @@ def getTagsByArticle(request):
 def get_article_detail(request):
     article = model_to_dict(Article.objects.get(pk=request.GET["id"]))
     article["poster"] = str(article["poster"])
-    print(article)
     categoryInfo = model_to_dict(Category.objects.get(pk=article["category"]))
     article["categoryInfo"] = {
         "id": categoryInfo['id'],
@@ -99,4 +99,41 @@ def userLike(request):
     article.save()
     count = Article.objects.get(pk=data["id"]).fav_counts
     return JsonResponse(CommonResponse(count).toDict())
+
+
+def article_comment_list(request):
+    article_id = request.GET["id"]
+    page_index = int(request.GET["page_index"])
+    page_size = int(request.GET["page_size"])
+    cmt_list = list(Comment.objects.values().filter(article=article_id)[(page_index - 1) * page_size: page_index * page_size])
+    cmt_total = Comment.objects.filter(article=article_id).count()
+    return JsonResponse(CommonResponse({
+        "list": cmt_list,
+        "total": cmt_total
+    }).toDict())
+
+@csrf_exempt
+def comment(request):
+    data = json.loads(request.body.decode())
+    article_id = data["article_id"]
+    p_comment_id = data["comment_id"]
+    nickname = data["nickname"]
+    content = data["content"]
+    if(content == ''):
+        return JsonResponse(CommonResponse(msg=constant.MSG_PARAM_ERROR, code=constant.CODE_PARAM_ERROR, data="").toDict())
+    article=Article.objects.get(pk=article_id)
+    p_comment = p_comment_id
+    if(nickname == ''):
+        nickname = '匿名用户'
+
+    comment_ins = Comment(user_name=nickname, content=content,article=article, p_comment=p_comment)
+    try:
+        comment_ins.save()
+    except:
+        return JsonResponse(CommonResponse(msg=constant.MSG_SQL_ERROR, code=constant.CODE_SQL_ERROR, data="").toDict())
+    else:
+        return JsonResponse(CommonResponse(model_to_dict(comment_ins)).toDict())
+
+
+
 
