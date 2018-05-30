@@ -1,4 +1,5 @@
 from django.db import models
+from markdownx.models import MarkdownxField
 # Create your models here.
 
 
@@ -36,7 +37,7 @@ class Article(models.Model):
     )
     title=models.CharField("标题", max_length=30)
     poster=models.ImageField("海报图", blank=True, upload_to='uploads/%Y/%m')
-    content=models.TextField("内容")
+    content=MarkdownxField("内容")
     category=models.ForeignKey('Category', on_delete=models.CASCADE, blank=False, verbose_name="类别")
     tag=models.ManyToManyField('Tag', verbose_name="标签")
     create_time=models.DateTimeField('发布日期', auto_now=True)
