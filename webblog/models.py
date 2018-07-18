@@ -40,7 +40,7 @@ class Article(models.Model):
     content=MarkdownxField("内容")
     category=models.ForeignKey('Category', on_delete=models.CASCADE, blank=False, verbose_name="类别")
     tag=models.ManyToManyField('Tag', verbose_name="标签")
-    create_time=models.DateTimeField('发布日期', auto_now=True)
+    create_time=models.DateTimeField('发布日期', auto_now=False)
     update_time=models.DateTimeField('修改日期', auto_now=True)
     is_top=models.CharField("是否置顶",default=NO, choices=IS_TOP_CHOICES, max_length=1)
     is_publish=models.CharField("是否发布", default=YES, choices=IS_TOP_CHOICES, max_length=1)
